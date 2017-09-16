@@ -44,7 +44,7 @@ mean(stepsperday, na.rm=TRUE)
 ## [1] 10766.19
 ```
 
-The median is;
+The median is:
 
 ```r
 median(stepsperday, na.rm=TRUE)
@@ -64,21 +64,28 @@ mean.stepsperinterval <- tapply(activity$steps, activity$interval, mean, na.rm=T
 stepsperinterval<-unname(mean.stepsperinterval)
 library(lattice)
 intervals <- as.numeric(levels(as.factor(activity$interval)))
-xyplot(stepsperinterval ~ intervals  , type='l', main='Average number of steps averages over all days', 
-       xlab='Interval', ylab='Steps')
+xyplot(stepsperinterval ~ intervals  , type='l', main='Average number of steps averages over all days', xlab='Interval', ylab='Steps')
 ```
 
 ![](PA1_template_files/figure-html/time_series_plot-1.png)<!-- -->
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
+The interval with the maxium number of steps is:
 
 ```r
-activity$interval[max(activity$steps, na.rm=TRUE) ]
+max <- max(stepsperinterval)
+intervals[match(max, stepsperinterval)]
 ```
 
 ```
-## [1] 1905
+## [1] 835
+```
+
+The average number of steps in that maximum interval is :
+
+```
+## [1] 206.1698
 ```
 
 ## Imputing missing values
@@ -86,12 +93,13 @@ activity$interval[max(activity$steps, na.rm=TRUE) ]
 
 
 ```r
-sum(!complete.cases(activity))
+sum(is.na(activity))
 ```
 
 ```
 ## [1] 2304
 ```
+
 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
 Our strategy is to replace the missing value by the mean number of steps during the interval where the missing value is observed.

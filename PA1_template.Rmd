@@ -24,7 +24,7 @@ unlink(temp)
 ## What is mean total number of steps taken per day?
 
 1. Calculate the total number of steps taken per day
-```{r stepsperday}
+```{r stepsperdaycode}
 stepsperday <- tapply(activity$steps, activity$date, sum)
 ```
 
@@ -34,12 +34,12 @@ hist(stepsperday)
 ```
 3. Calculate and report the mean and median of the total number of steps taken per day
 
-```{r mean}
+```{r meansteps}
 mean(stepsperday, na.rm=TRUE)
 ```
 
-The median is;
-```{r median}
+The median is:
+```{r mediansteps}
 median(stepsperday, na.rm=TRUE)
 ```
 
@@ -52,22 +52,29 @@ mean.stepsperinterval <- tapply(activity$steps, activity$interval, mean, na.rm=T
 stepsperinterval<-unname(mean.stepsperinterval)
 library(lattice)
 intervals <- as.numeric(levels(as.factor(activity$interval)))
-xyplot(stepsperinterval ~ intervals  , type='l', main='Average number of steps averages over all days', 
-       xlab='Interval', ylab='Steps')
+xyplot(stepsperinterval ~ intervals  , type='l', main='Average number of steps averages over all days', xlab='Interval', ylab='Steps')
 ```
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
+The interval with the maxium number of steps is:
 ```{r Peakinterval}
-activity$interval[max(activity$steps, na.rm=TRUE) ]
+max <- max(stepsperinterval)
+intervals[match(max, stepsperinterval)]
+```
+
+The average number of steps in that maximum interval is :
+```{r maxIntervalSteps, echo=FALSE}
+max
 ```
 
 ## Imputing missing values
 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with 𝙽𝙰s)
 
 ```{r na.count}
-sum(!complete.cases(activity))
+sum(is.na(activity))
 ```
+
 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
 Our strategy is to replace the missing value by the mean number of steps during the interval where the missing value is observed.
