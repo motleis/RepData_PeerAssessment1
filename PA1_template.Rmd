@@ -108,27 +108,36 @@ The mean is still the same while the median is now equal to the mean as well. Im
 1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 
 ```{r weekdays}
-  days <- weekdays(as.Date(activity$date))
-  weekday.factor <- factor(c('weekday', 'weekend'))
-  activity$days[(weekdays(as.Date(activity$date)) =='Saturday' ) | (weekdays(as.Date(activity$date)) =='Sunday' ) ] <- 'weekend' 
-  activity$days[!(weekdays(as.Date(activity$date)) =='Saturday' ) & !(weekdays(as.Date(activity$date)) =='Sunday' ) ] <- 'weekday' 
-  activity$days <- as.factor(activity$days)
+  # days <- weekdays(as.Date(activity.no.na$date))
+  activity.no.na$days <- factor(c('weekday', 'weekend'))
+  activity.no.na$days[(weekdays(as.Date(activity.no.na$date)) =="Saturday" ) | (weekdays(as.Date(activity.no.na$date)) =="Sunday" ) ] <- "weekend"
+  
+  activity.no.na$days[!(weekdays(as.Date(activity.no.na$date)) =="Saturday" ) & !(weekdays(as.Date(activity.no.na$date)) =="Sunday" ) ] <- "weekday"
+  
+  activity.no.na$days <- as.factor(activity.no.na$days)
 ```
 
 2. Make a panel plot containing a time series plot (i.e. 𝚝𝚢𝚙𝚎 = "𝚕") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
 
 ```{r weekdayssteps}
-weekdays <- activity[activity$days=='weekday',]
-steps.weekdays <- unname(tapply(weekdays$steps, weekdays$interval, mean, na.rm=TRUE))
 library(lattice)
-intervals <- as.numeric(levels(as.factor(activity$interval)))
-xyplot(steps.weekdays ~ intervals  , type='l', main='Average number of steps over all week days',  xlab='Interval', ylab='Steps')
+suppressMessages(library(dplyr))
+
+# Summarize by interval and day_type
+activity_interval_wkdy <- activity.no.na  %>%
+    ## Group by day type
+    group_by(interval,days)  %>% 
+    ## Summarize
+    summarise(Interval_Steps = mean(steps,na.rm=TRUE))
+
+#panel plot in lattice
+xyplot (activity_interval_wkdy$Interval_Steps ~
+          activity_interval_wkdy$interval
+         | activity_interval_wkdy$days,
+ data=activity.no.na, type="l", 
+        col.line="blue", ylab="Average Steps for Interval", xlab="5 Minutes Interval",
+        main="Step Per Interval for Weekend vs. Weekdays",layout=c(1,2))
+
 ```
 
 
-```{r weekendsteps}
-weekends <- activity[activity$days=='weekend',]
-steps.weekends <- unname(tapply(weekends$steps, weekends$interval, mean, na.rm=TRUE))
-intervals <- as.numeric(levels(as.factor(activity$interval)))
-xyplot(steps.weekends ~ intervals  , type='l', main='Average number of steps over all weekends', xlab='Interval', ylab='Steps')
-```
